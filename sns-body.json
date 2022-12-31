@@ -1,0 +1,18 @@
+{
+  "Type": "Notification",
+  "MessageId": "a317a482-a2cb-55ef-99fc-ffce1ab2f85e",
+  "TopicArn": "arn:aws:sns:ap-southeast-1:684463183965:passport-sns-dev",
+  "Subject": "passport_record",
+  "Message": "{\"name\":\"Javier Stamm\",\"birthday\":\"Wed Jun 08 2022 08:05:42 GMT+0700 (Indochina Time)\",\"citizenship\":\"Bulgaria\",\"occupation\":\"Analyst\",\"correlationId\":\"01G83HFM2GYXKV61TCFP8NWX9D\"}",
+  "Timestamp": "2022-07-16T12:59:37.467Z",
+  "SignatureVersion": "1",
+  "Signature": "Kqpl4r/plj7P5tJGVH6qfRfQ/tmnbc9hlI3HHDoEe2n+XE91FbfuSUE4VfUyrAa1OoZ/FwsEruz8CiDE5C0di1RoGGYmrOwp+UwuesHaRrkl4k72ycEhjGokJwpO84vSS7wNpUBZVffFKUZ8JEZM9ZeE0qJId155NfMzp7evmw/hIu9dCO/35f0rxelvkgryzjr5tAc27KmjmhVBKG6S6agDmJIZNadUrngH0TywRlLRToM0xWiVPz0fXLUJVlNZypENLHq6ghiK+hjJoJXGjBYZEmBwrszxh1ZX3864DfyPHy/szdUaC6IuhoSbLDdJlo2iaNY9COAar64p0O2ghQ==",
+  "SigningCertURL": "https://sns.ap-southeast-1.amazonaws.com/SimpleNotificationService-7ff5318490ec183fbaddaa2a969abfda.pem",
+  "UnsubscribeURL": "https://sns.ap-southeast-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:ap-southeast-1:684463183965:passport-sns-dev:18bb36fb-98b2-4259-9143-117cb0cf0329",
+  "MessageAttributes": {
+    "uuid": {
+      "Type": "String",
+      "Value": "059e0c23-f2c4-4603-8e50-6392bd34560b"
+    }
+  }
+}

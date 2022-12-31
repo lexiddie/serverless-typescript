@@ -1,0 +1,282 @@
+service: serverless-ts-passport
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+  - serverless-dotenv-plugin
+  - serverless-deployment-bucket
+
+package:
+  individually: true
+
+custom:
+  name: serverless-ts
+  stage: ${opt:stage, 'offline'}
+  region: ${opt:region, 'ap-southeast-1'}
+  runtime: nodejs14.x
+  serverless-offline:
+    httpPort: 3000
+    noPrependStageInUrl: true
+  webpack:
+    webpackConfig: ../../webpack.config.js
+    packager: 'yarn'
+    includeModules:
+      packagePath: ../../package.json
+      forceExclude:
+        - aws-sdk
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  architecture: arm64
+  endpointType: regional
+  stage: ${opt:stage, 'offline'}
+  region: ${opt:region, 'ap-southeast-1'}
+  stackTags:
+    stack: ${opt:stage, 'offline'}
+  versionFunctions: false
+  vpc:
+    securityGroupIds:
+      - ${env:SECURITY_GROUP_ID}
+    subnetIds:
+      - ${env:SUBNET_ID_1}
+      - ${env:SUBNET_ID_2}
+      - ${env:SUBNET_ID_3}
+  memorySize: 512
+  apiGateway:
+    apiKeys:
+      - name: serverless-ts-passport-api-key-${self:provider.stage}
+        description: 'serverless-ts-api-key'
+    usagePlan:
+      throttle:
+        burstLimit: 200
+        rateLimit: 100
+  environment:
+    LOG_LEVEL: ERROR
+    STAGE: ${opt:stage, 'offline'}
+    NODE_ENV: ${opt:stage, 'offline'}
+    DB_HOST: ${env:DB_HOST}
+    DB_PORT: ${env:DB_PORT}
+    DB_USER: ${env:DB_USER}
+    DB_PASSWORD: ${env:DB_PASSWORD}
+    DB_NAME: ${env:DB_NAME}
+    PASSPORT_QUEUE_URL: https://sqs.#{AWS::Region}.amazonaws.com/#{AWS::AccountId}/passport-queue-${self:provider.stage}
+  deploymentBucket:
+    name: serverless-ts-${self:provider.stage}
+  iam:
+    role:
+      statements:
+        # - Effect: 'Allow'
+        #   Action:
+        #     - 's3:ListBucket'
+        #     - 's3:GetObject'
+        #     - 's3:PutObject'
+        #     - 's3:DeleteObject'
+        #   Resource: '*'
+
+        - Effect: 'Allow'
+          Action:
+            - 'lambda:InvokeFunction'
+            - 'lambda:InvokeAsync'
+          Resource: '*'
+
+        - Effect: Allow
+          Action:
+            - 'sns:Publish'
+          Resource: '*'
+
+        - Effect: 'Allow'
+          Action:
+            - 'sqs:DeleteMessage'
+            - 'sqs:ReceiveMessage'
+            - 'sqs:SendMessage'
+            - 'sqs:GetQueueUrl'
+            - 'sqs:ListQueues'
+          Resource:
+            - 'arn:aws:sqs:#{AWS::Region}:#{AWS::AccountId}:passport-queue-${self:provider.stage}'
+
+        # - Effect: Allow
+        #   Action:
+        #     - 'sqs:DeleteMessage'
+        #     - 'sqs:ReceiveMessage'
+        #     - 'sqs:SendMessage'
+        #   Resource:
+        #     - Fn::GetAtt: [passportQueue, Arn]
+
+        # - Effect: 'Allow'
+        #   Action:
+        #     - 'lambda:InvokeFunction'
+        #     - 'lambda:InvokeAsync'
+        #   Resource:
+        #     - arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:serverless-ts-passport-${self:provider.stage}-passportWorker
+  # iam:
+  #   role:
+  #     statements:
+  #       - Effect: 'Allow'
+  #         Action:
+  #           - 'sqs:DeleteMessage'
+  #           - 'sqs:ReceiveMessage'
+  #           - 'sqs:SendMessage'
+  #         Resource:
+  #           - arn:aws:sqs:#{AWS::Region}:#{AWS::AccountId}:passport-queue-${self:provider.stage}
+
+  timeout: 30
+  logRetentionInDays: 90
+  logs:
+    httpApi: true
+  httpApi:
+    cors: true
+
+functions:
+  createPassport:
+    handler: index.createPassport
+    events:
+      - http:
+          path: /passports
+          method: post
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+  getPassports:
+    handler: index.getPassports
+    events:
+      - http:
+          path: /passports
+          method: get
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+  getPassport:
+    handler: index.getPassport
+    events:
+      - http:
+          path: /passports/{passportId}
+          method: get
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+  updatePassport:
+    handler: index.updatePassport
+    events:
+      - http:
+          path: /passports/{passportId}
+          method: put
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+  deletePassport:
+    handler: index.deletePassport
+    events:
+      - http:
+          path: /passports/{passportId}
+          method: delete
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+  passportWorker:
+    handler: index.passportWorker
+    events:
+      - sqs:
+          arn: arn:aws:sqs:#{AWS::Region}:#{AWS::AccountId}:passport-queue-${self:provider.stage}
+          batchSize: 1
+          maximumBatchingWindow: 60
+
+  dispatchPassport:
+    handler: index.dispatchPassport
+    timeout: 30
+    events:
+      - http:
+          path: /dispatchPassport
+          method: post
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+resources:
+  Resources:
+    LambdaExecutionRole:
+      Type: AWS::IAM::Role
+      Properties:
+        Path: /my/default/path/
+        RoleName: iam-${self:service}-${self:provider.stage}
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+        Policies:
+          - PolicyName: ${self:service}-${self:provider.stage}
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - logs:CreateLogGroup
+                    - logs:CreateLogStream
+                    - logs:PutLogEvents
+                  Resource: '*'
+                - Effect: 'Allow'
+                  Action:
+                    - 's3:PutObject'
+                  Resource: '*'
+    passportQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: 'passport-queue-${self:provider.stage}'
+        DelaySeconds: 0
+        MessageRetentionPeriod: 345600
+        VisibilityTimeout: 100

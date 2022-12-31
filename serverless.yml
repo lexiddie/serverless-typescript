@@ -1,0 +1,426 @@
+service: serverless-typescript
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+  - serverless-dotenv-plugin
+  - serverless-deployment-bucket
+
+package:
+  individually: true
+
+custom:
+  name: serverless-alexander
+  stage: ${opt:stage, 'offline'}
+  region: ${opt:region, 'ap-southeast-1'}
+  runtime: nodejs16.x
+  serverless-offline:
+    httpPort: 3000
+    noPrependStageInUrl: true
+  webpack:
+    webpackConfig: ./webpack.config.js
+    packager: 'yarn'
+    includeModules:
+      packagePath: ./package.json
+      forceExclude:
+        - aws-sdk
+  pseudoParameters:
+    allowReferences: true
+    skipRegionReplace: true
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  architecture: arm64
+  endpointType: regional
+  stage: ${opt:stage, 'offline'}
+  region: ${opt:region, 'ap-southeast-1'}
+  stackTags:
+    stack: ${opt:stage, 'offline'}
+  versionFunctions: false
+  vpc:
+    securityGroupIds:
+      - ${env:SECURITY_GROUP_ID}
+    subnetIds:
+      - ${env:SUBNET_ID_1}
+      - ${env:SUBNET_ID_2}
+      - ${env:SUBNET_ID_3}
+  memorySize: 1024
+  apiGateway:
+    apiKeys:
+      - name: serverless-typescript-api-key-${self:provider.stage}
+        description: 'serverless-typescript-api-key'
+    usagePlan:
+      throttle:
+        burstLimit: 200
+        rateLimit: 100
+  environment:
+    LOG_LEVEL: INFO
+    STAGE: ${opt:stage, 'offline'}
+    NODE_ENV: ${opt:stage, 'offline'}
+    DB_HOST: ${env:DB_HOST}
+    DB_PORT: ${env:DB_PORT}
+    DB_USER: ${env:DB_USER}
+    DB_PASSWORD: ${env:DB_PASSWORD}
+    DB_NAME: ${env:DB_NAME}
+    SHOW_DATA_SOURCE_LOG: true
+    AWS_ACCOUNT_ID: ${env:AWS_ACCOUNT_ID}
+    PASSPORT_TOPIC: arn:aws:sns:${aws:region}:${aws:accountId}:passport-sns-${self:provider.stage}
+  deploymentBucket:
+    name: serverless-typescript-${self:provider.stage}
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'
+          Action:
+            - 's3:ListBucket'
+            - 's3:GetObject'
+            - 's3:PutObject'
+            - 's3:DeleteObject'
+            - 's3:CreateBucket'
+          Resource: '*'
+
+        - Effect: 'Allow'
+          Action:
+            - 'sqs:DeleteMessage'
+            - 'sqs:ReceiveMessage'
+            - 'sqs:SendMessage'
+            - 'sqs:GetQueueAttributes'
+          Resource:
+            - arn:aws:sqs:${aws:region}:${aws:accountId}:passport-sqs-${self:provider.stage}
+
+        - Effect: 'Allow'
+          Action:
+            - 'sns:ConfirmSubscription'
+            - 'sns:GetSubscriptionAttributes'
+            - 'sns:GetTopicAttributes'
+            - 'sns:Subscribe'
+            - 'sns:Unsubscribe'
+            - 'sns:Publish'
+          Resource:
+            - arn:aws:sns:${aws:region}:${aws:accountId}:passport-sns-${self:provider.stage}
+
+        # - Effect: 'Allow'
+        #   Action:
+        #     - 'lambda:InvokeFunction'
+        #     - 'lambda:InvokeAsync'
+        #   Resource:
+        #     - arn:aws:lambda:${aws:region}:${aws:accountId}:function:serverless-typescript-${self:provider.stage}-passportWorker
+
+  # timeout: 30
+  # logRetentionInDays: 90
+  # logs:
+  #   httpApi: true
+  # httpApi:
+  #   cors: true
+
+functions:
+  # createTodo:
+  #   handler: src/todo/index.createTodo
+  #   events:
+  #     - http:
+  #         path: /todos
+  #         method: post
+  #         private: true
+  #         cors:
+  #           origin: '*'
+  #           headers:
+  #             - Content-Type
+  #             - X-Amz-Date
+  #             - Authorization
+  #             - X-Api-Key
+  #             - X-Amz-Security-Token
+  #             - X-Amz-User-Agent
+  #           allowCredentials: true
+  # getTodos:
+  #   handler: src/todo/index.getTodos
+  #   events:
+  #     - http:
+  #         path: /todos
+  #         method: get
+  #         private: true
+  #         cors:
+  #           origin: '*'
+  #           headers:
+  #             - Content-Type
+  #             - X-Amz-Date
+  #             - Authorization
+  #             - X-Api-Key
+  #             - X-Amz-Security-Token
+  #             - X-Amz-User-Agent
+  #           allowCredentials: true
+  # getTodo:
+  #   handler: src/todo/index.getTodo
+  #   events:
+  #     - http:
+  #         path: /todos/{todoId}
+  #         method: get
+  #         private: true
+  #         cors:
+  #           origin: '*'
+  #           headers:
+  #             - Content-Type
+  #             - X-Amz-Date
+  #             - Authorization
+  #             - X-Api-Key
+  #             - X-Amz-Security-Token
+  #             - X-Amz-User-Agent
+  #           allowCredentials: true
+  # updateTodo:
+  #   handler: src/todo/index.updateTodo
+  #   events:
+  #     - http:
+  #         path: /todos/{todoId}
+  #         method: put
+  #         private: true
+  #         cors:
+  #           origin: '*'
+  #           headers:
+  #             - Content-Type
+  #             - X-Amz-Date
+  #             - Authorization
+  #             - X-Api-Key
+  #             - X-Amz-Security-Token
+  #             - X-Amz-User-Agent
+  #           allowCredentials: true
+  # deleteTodo:
+  #   handler: src/todo/index.deleteTodo
+  #   events:
+  #     - http:
+  #         path: /todos/{todoId}
+  #         method: delete
+  #         private: true
+  #         cors:
+  #           origin: '*'
+  #           headers:
+  #             - Content-Type
+  #             - X-Amz-Date
+  #             - Authorization
+  #             - X-Api-Key
+  #             - X-Amz-Security-Token
+  #             - X-Amz-User-Agent
+  #           allowCredentials: true
+  # getHealth:
+  #   handler: src/todo/index.getHealth
+  #   events:
+  #     - http:
+  #         path: /health
+  #         method: get
+  #         private: true
+  #         cors:
+  #           origin: '*'
+  #           headers:
+  #             - Content-Type
+  #             - X-Amz-Date
+  #             - Authorization
+  #             - X-Api-Key
+  #             - X-Amz-Security-Token
+  #             - X-Amz-User-Agent
+  #           allowCredentials: true
+
+  # getHello:
+  #   handler: src/todo/index.getHello
+  #   events:
+  #     - http:
+  #         path: /hello
+  #         method: get
+  #         private: true
+  #         cors:
+  #           origin: '*'
+  #           headers:
+  #             - Content-Type
+  #             - X-Amz-Date
+  #             - Authorization
+  #             - X-Api-Key
+  #             - X-Amz-Security-Token
+  #             - X-Amz-User-Agent
+  #           allowCredentials: true
+
+  # getTestAsync:
+  #   handler: src/todo/index.getTestAsync
+  #   events:
+  #     - http:
+  #         path: /testAsync
+  #         method: get
+  #         private: true
+  #         cors:
+  #           origin: '*'
+  #           headers:
+  #             - Content-Type
+  #             - X-Amz-Date
+  #             - Authorization
+  #             - X-Api-Key
+  #             - X-Amz-Security-Token
+  #             - X-Amz-User-Agent
+  #           allowCredentials: true
+
+  passportWorker:
+    handler: src/passport/index.passportWorker
+    description: 'Lambda worker to listen SQS messages before start doing works'
+    timeout: 30
+    # provisionedConcurrency: 1
+    events:
+      - sqs:
+          arn: arn:aws:sqs:${aws:region}:${aws:accountId}:passport-sqs-${self:provider.stage}
+          batchSize: 1
+          maximumBatchingWindow: 100
+
+  dispatchPassport:
+    handler: src/passport/index.dispatchPassport
+    timeout: 25
+    events:
+      - http:
+          path: /dispatchPassport
+          method: post
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  dispatchTopic:
+    handler: src/passport/index.dispatchTopic
+    timeout: 25
+    events:
+      - http:
+          path: /dispatchTopic
+          method: post
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  createPassport:
+    handler: src/passport/index.createPassport
+    events:
+      - http:
+          path: /passports
+          method: post
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+  getPassports:
+    handler: src/passport/index.getPassports
+    events:
+      - http:
+          path: /passports
+          method: get
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+  getPassport:
+    handler: src/passport/index.getPassport
+    events:
+      - http:
+          path: /passports/{passportId}
+          method: get
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+  updatePassport:
+    handler: src/passport/index.updatePassport
+    events:
+      - http:
+          path: /passports/{passportId}
+          method: put
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+  deletePassport:
+    handler: src/passport/index.deletePassport
+    events:
+      - http:
+          path: /passports/{passportId}
+          method: delete
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+resources:
+  Resources:
+    PassportSQS:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: 'passport-sqs-${self:provider.stage}'
+        DelaySeconds: 0
+        MessageRetentionPeriod: 345600
+        VisibilityTimeout: 100
+        RedrivePolicy:
+          deadLetterTargetArn:
+            Fn::GetAtt:
+              - 'PassportDLQ'
+              - 'Arn'
+          maxReceiveCount: 5
+    PassportDLQ:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: 'passport-dlq-${self:provider.stage}'
+        DelaySeconds: 60
+        MaximumMessageSize: 2048
+        MessageRetentionPeriod: 345600
+        VisibilityTimeout: 100
+    PassportSNS:
+      Type: AWS::SNS::Topic
+      Properties:
+        Subscription:
+          - Endpoint:
+              Fn::GetAtt:
+                - 'PassportSQS'
+                - 'Arn'
+            Protocol: 'sqs'
+        TopicName: 'passport-sns-${self:provider.stage}'

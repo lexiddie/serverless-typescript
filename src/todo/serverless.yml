@@ -1,0 +1,212 @@
+service: serverless-ts-todo
+
+package:
+  individually: true
+
+custom:
+  name: serverless-ts
+  stage: ${opt:stage, 'offline'}
+  region: ${opt:region, 'ap-southeast-1'}
+  runtime: nodejs14.x
+  serverless-offline:
+    httpPort: 3000
+    noPrependStageInUrl: true
+  webpack:
+    webpackConfig: ../../webpack.config.js
+    packager: 'yarn'
+    includeModules:
+      packagePath: ../../package.json
+      forceExclude:
+        - aws-sdk
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  architecture: arm64
+  endpointType: regional
+  stage: ${opt:stage, 'offline'}
+  region: ${opt:region, 'ap-southeast-1'}
+  stackTags:
+    stack: ${opt:stage, 'offline'}
+  versionFunctions: false
+  vpc:
+    securityGroupIds:
+      - ${env:SECURITY_GROUP_ID}
+    subnetIds:
+      - ${env:SUBNET_ID_1}
+      - ${env:SUBNET_ID_2}
+      - ${env:SUBNET_ID_3}
+  memorySize: 512
+  apiGateway:
+    apiKeys:
+      - name: serverless-ts-todo-api-key-${self:provider.stage}
+        description: 'serverless-ts-api-key'
+    usagePlan:
+      throttle:
+        burstLimit: 200
+        rateLimit: 100
+  environment:
+    LOG_LEVEL: ERROR
+    STAGE: ${opt:stage, 'offline'}
+    NODE_ENV: ${opt:stage, 'offline'}
+    DB_HOST: ${env:DB_HOST}
+    DB_PORT: ${env:DB_PORT}
+    DB_USER: ${env:DB_USER}
+    DB_PASSWORD: ${env:DB_PASSWORD}
+    DB_NAME: ${env:DB_NAME}
+  deploymentBucket:
+    name: serverless-ts-${self:provider.stage}
+
+  timeout: 30
+  logRetentionInDays: 90
+  logs:
+    httpApi: true
+  httpApi:
+    cors: true
+
+functions:
+  createTodo:
+    handler: index.createTodo
+    events:
+      - http:
+          path: /todos
+          method: post
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+  getTodos:
+    handler: index.getTodos
+    events:
+      - http:
+          path: /todos
+          method: get
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+  getTodo:
+    handler: index.getTodo
+    events:
+      - http:
+          path: /todos/{todoId}
+          method: get
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+  updateTodo:
+    handler: index.updateTodo
+    events:
+      - http:
+          path: /todos/{todoId}
+          method: put
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+  deleteTodo:
+    handler: index.deleteTodo
+    events:
+      - http:
+          path: /todos/{todoId}
+          method: delete
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+  getHealth:
+    handler: index.getHealth
+    events:
+      - http:
+          path: /health
+          method: get
+          # cors: true
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+  getHello:
+    handler: index.getHello
+    events:
+      - http:
+          path: /hello
+          method: get
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+  getTestAsync:
+    handler: index.getTestAsync
+    events:
+      - http:
+          path: /testAsync
+          method: get
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+  - serverless-dotenv-plugin
+  - serverless-deployment-bucket
