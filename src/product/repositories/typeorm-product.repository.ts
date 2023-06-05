@@ -1,7 +1,7 @@
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 
 import BadRequestException from '../../exceptions/bad-request.exception';
-import Logger from '../../logger/default';
+import Logger from '../../logger';
 import CreateProductDto from '../dto/create-product.dto';
 import UpdateProductDto from '../dto/update-product.dto';
 import ProductEntity from '../entities/product.entity';

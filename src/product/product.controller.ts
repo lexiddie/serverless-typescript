@@ -4,7 +4,7 @@ import { get } from 'lodash';
 import MainException from '../exceptions/main.exception';
 import Response from '../utils/response.utils';
 import HttpStatus from '../enums/http-status.enum';
-import Logger from '../logger/default';
+import Logger from '../logger';
 import DatabaseService from './services/database.service';
 import AppDataSource from '../db/data-source';
 import { validateOrReject } from 'class-validator';

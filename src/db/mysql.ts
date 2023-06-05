@@ -1,6 +1,6 @@
 import { Connection } from 'mysql2';
 
-import Logger from '../logger/default';
+import Logger from '../logger';
 import db from './connection';
 
 class MySql {

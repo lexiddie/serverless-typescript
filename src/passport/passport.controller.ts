@@ -18,7 +18,7 @@ import { get } from 'lodash';
 import MainException from '../exceptions/main.exception';
 import Response from '../utils/response.utils';
 import HttpStatus from '../enums/http-status.enum';
-import Logger from '../logger/default';
+import Logger from '../logger';
 import MySql from '../db/mysql';
 import MySqlPassportRepository from './repositories/mysql-passport.repository';
 import DatabaseService from './services/database.service';

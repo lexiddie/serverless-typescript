@@ -3,7 +3,7 @@ import 'mysql2';
 import { get } from 'lodash';
 import { DataSource, DataSourceOptions, EntityTarget } from 'typeorm';
 import rootEntity from './root-entity';
-import Logger from '../logger/default';
+import Logger from '../logger';
 
 class AppDataSource {
   private dataSource: DataSource;

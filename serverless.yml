@@ -10,7 +10,7 @@ package:
   individually: true
 
 custom:
-  name: serverless-alexander
+  name: serverless-api
   stage: ${opt:stage, 'offline'}
   region: ${opt:region, 'ap-southeast-1'}
   runtime: nodejs16.x
@@ -102,165 +102,157 @@ provider:
           Resource:
             - arn:aws:sns:${aws:region}:${aws:accountId}:passport-sns-${self:provider.stage}
 
-        # - Effect: 'Allow'
-        #   Action:
-        #     - 'lambda:InvokeFunction'
-        #     - 'lambda:InvokeAsync'
-        #   Resource:
-        #     - arn:aws:lambda:${aws:region}:${aws:accountId}:function:serverless-typescript-${self:provider.stage}-passportWorker
-
-  # timeout: 30
-  # logRetentionInDays: 90
-  # logs:
-  #   httpApi: true
-  # httpApi:
-  #   cors: true
+  timeout: 15
+  logRetentionInDays: 90
+  logs:
+    httpApi: true
+  httpApi:
+    cors: true
 
 functions:
-  # createTodo:
-  #   handler: src/todo/index.createTodo
-  #   events:
-  #     - http:
-  #         path: /todos
-  #         method: post
-  #         private: true
-  #         cors:
-  #           origin: '*'
-  #           headers:
-  #             - Content-Type
-  #             - X-Amz-Date
-  #             - Authorization
-  #             - X-Api-Key
-  #             - X-Amz-Security-Token
-  #             - X-Amz-User-Agent
-  #           allowCredentials: true
-  # getTodos:
-  #   handler: src/todo/index.getTodos
-  #   events:
-  #     - http:
-  #         path: /todos
-  #         method: get
-  #         private: true
-  #         cors:
-  #           origin: '*'
-  #           headers:
-  #             - Content-Type
-  #             - X-Amz-Date
-  #             - Authorization
-  #             - X-Api-Key
-  #             - X-Amz-Security-Token
-  #             - X-Amz-User-Agent
-  #           allowCredentials: true
-  # getTodo:
-  #   handler: src/todo/index.getTodo
-  #   events:
-  #     - http:
-  #         path: /todos/{todoId}
-  #         method: get
-  #         private: true
-  #         cors:
-  #           origin: '*'
-  #           headers:
-  #             - Content-Type
-  #             - X-Amz-Date
-  #             - Authorization
-  #             - X-Api-Key
-  #             - X-Amz-Security-Token
-  #             - X-Amz-User-Agent
-  #           allowCredentials: true
-  # updateTodo:
-  #   handler: src/todo/index.updateTodo
-  #   events:
-  #     - http:
-  #         path: /todos/{todoId}
-  #         method: put
-  #         private: true
-  #         cors:
-  #           origin: '*'
-  #           headers:
-  #             - Content-Type
-  #             - X-Amz-Date
-  #             - Authorization
-  #             - X-Api-Key
-  #             - X-Amz-Security-Token
-  #             - X-Amz-User-Agent
-  #           allowCredentials: true
-  # deleteTodo:
-  #   handler: src/todo/index.deleteTodo
-  #   events:
-  #     - http:
-  #         path: /todos/{todoId}
-  #         method: delete
-  #         private: true
-  #         cors:
-  #           origin: '*'
-  #           headers:
-  #             - Content-Type
-  #             - X-Amz-Date
-  #             - Authorization
-  #             - X-Api-Key
-  #             - X-Amz-Security-Token
-  #             - X-Amz-User-Agent
-  #           allowCredentials: true
-  # getHealth:
-  #   handler: src/todo/index.getHealth
-  #   events:
-  #     - http:
-  #         path: /health
-  #         method: get
-  #         private: true
-  #         cors:
-  #           origin: '*'
-  #           headers:
-  #             - Content-Type
-  #             - X-Amz-Date
-  #             - Authorization
-  #             - X-Api-Key
-  #             - X-Amz-Security-Token
-  #             - X-Amz-User-Agent
-  #           allowCredentials: true
+  createTodo:
+    handler: src/todo/index.createTodo
+    events:
+      - http:
+          path: /todos
+          method: post
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+  getTodos:
+    handler: src/todo/index.getTodos
+    events:
+      - http:
+          path: /todos
+          method: get
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+  getTodo:
+    handler: src/todo/index.getTodo
+    events:
+      - http:
+          path: /todos/{todoId}
+          method: get
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+  updateTodo:
+    handler: src/todo/index.updateTodo
+    events:
+      - http:
+          path: /todos/{todoId}
+          method: put
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+  deleteTodo:
+    handler: src/todo/index.deleteTodo
+    events:
+      - http:
+          path: /todos/{todoId}
+          method: delete
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+  getHealth:
+    handler: src/todo/index.getHealth
+    events:
+      - http:
+          path: /health
+          method: get
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
 
-  # getHello:
-  #   handler: src/todo/index.getHello
-  #   events:
-  #     - http:
-  #         path: /hello
-  #         method: get
-  #         private: true
-  #         cors:
-  #           origin: '*'
-  #           headers:
-  #             - Content-Type
-  #             - X-Amz-Date
-  #             - Authorization
-  #             - X-Api-Key
-  #             - X-Amz-Security-Token
-  #             - X-Amz-User-Agent
-  #           allowCredentials: true
+  getHello:
+    handler: src/todo/index.getHello
+    events:
+      - http:
+          path: /hello
+          method: get
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
 
-  # getTestAsync:
-  #   handler: src/todo/index.getTestAsync
-  #   events:
-  #     - http:
-  #         path: /testAsync
-  #         method: get
-  #         private: true
-  #         cors:
-  #           origin: '*'
-  #           headers:
-  #             - Content-Type
-  #             - X-Amz-Date
-  #             - Authorization
-  #             - X-Api-Key
-  #             - X-Amz-Security-Token
-  #             - X-Amz-User-Agent
-  #           allowCredentials: true
+  getTestAsync:
+    handler: src/todo/index.getTestAsync
+    events:
+      - http:
+          path: /testAsync
+          method: get
+          private: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
 
   passportWorker:
     handler: src/passport/index.passportWorker
     description: 'Lambda worker to listen SQS messages before start doing works'
     timeout: 30
-    # provisionedConcurrency: 1
     events:
       - sqs:
           arn: arn:aws:sqs:${aws:region}:${aws:accountId}:passport-sqs-${self:provider.stage}
@@ -424,3 +416,22 @@ resources:
                 - 'Arn'
             Protocol: 'sqs'
         TopicName: 'passport-sns-${self:provider.stage}'
+    PassportQueuePolicy:
+      Type: AWS::SQS::QueuePolicy
+      Properties:
+        Queues:
+          - Ref: PassportSQS
+        PolicyDocument:
+          Id: Allow-SNS-SendMessage
+          Version: '2012-10-17'
+          Statement:
+            - Sid: Allow-SendMessage-pgw-${self:provider.stage}-passport-sqs
+              Effect: Allow
+              Principal: '*'
+              Action:
+                - SQS:SendMessage
+              Resource:
+                Fn::GetAtt: [PassportSQS, Arn]
+              Condition:
+                ArnEquals:
+                  aws:SourceArn: arn:aws:sns:${aws:region}:${aws:accountId}:pgw-${self:provider.stage}-passport-sns

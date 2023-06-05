@@ -1,6 +1,6 @@
 import { OkPacket } from 'mysql2';
 
-import Logger from '../../logger/default';
+import Logger from '../../logger';
 import MySql from '../../db/mysql';
 import InternalServerErrorException from '../../exceptions/internal-server-error.exception';
 import { ITodoRepository } from './todo.repository';

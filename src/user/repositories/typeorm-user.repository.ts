@@ -1,7 +1,7 @@
 import { Repository } from 'typeorm';
 
 import BadRequestException from '../../exceptions/bad-request.exception';
-import Logger from '../../logger/default';
+import Logger from '../../logger';
 import CreateUserDto from '../dto/create-user.dto';
 import UserEntity from '../entities/user.entity';
 import { IUserRepository } from './user.repository';
