@@ -9,6 +9,7 @@ Serverless TypeScript is a sample data manipulation project using Serverless Fra
 ### Server App
 
 - Serverless Framework
+- AWS SDK for Node.js
 - TypeORM for MySQL
 - AWS Lambda
 - AWS API Gateway
