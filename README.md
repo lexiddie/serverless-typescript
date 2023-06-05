@@ -31,6 +31,8 @@ Serverless TypeScript is a sample data manipulation project using Serverless Fra
 - Logger for AWS CloudWatch
 - HTTP Handle Exceptions
 - AWS SNS | Pub/Sub with AWS SQS
+- Staging Deployment Scripts "DEV" & "PROD"
+- Postman API collections
 
 ## Members and Roles
 
